@@ -20,8 +20,8 @@ impl C2 {
         }
     }
 
-    fn check_domain(&self, value: &str) -> bool {
-        if let Ok(mut addrs_iter) = format!("{}:0", value).to_socket_addrs() {
+    fn is_domain(&self) -> bool {
+        if let Ok(mut addrs_iter) = format!("{}:0", self.address).to_socket_addrs() {
             if addrs_iter.next().is_some() {
                 return true;
             }
@@ -30,14 +30,14 @@ impl C2 {
         false
     }
 
-    fn check_ip(&self, value: &str) -> bool {
-        value.parse::<IpAddr>().is_ok()
+    fn is_ip(&self) -> bool {
+        self.address.parse::<IpAddr>().is_ok()
     }
 
     fn get_address(&self) -> Result<String, io::Error> {
         let address = format!("{}:{}", self.address, self.port); 
 
-        if !self.check_domain(&self.address) && !self.check_ip(&self.address) {
+        if !self.is_domain() && !self.is_ip() {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData, 
                 format!("Failed to validate C2 address: {}", address)
